@@ -26,4 +26,4 @@ FROM public.ecr.aws/lambda/go:1
 COPY --from=builder /main ${LAMBDA_TASK_ROOT}
 
 # Set the binary as the container's entry point
-ENTRYPOINT ["/main"]
+CMD ["main"]
