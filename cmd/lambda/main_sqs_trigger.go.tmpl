@@ -1,0 +1,23 @@
+package main
+
+import (
+	"context"
+	"fmt"
+	"github.com/aws/aws-lambda-go/lambda"
+)
+
+func handler(ctx context.Context, event map[string]interface{}) (map[string]interface{}, error) {
+	for _, record := range event["Records"].([]interface{}) {
+		body := record.(map[string]interface{})["body"].(string)
+		fmt.Println(body)
+	}
+
+	return map[string]interface{}{
+		"statusCode": 200,
+		"body":       "Hello World",
+	}, nil
+}
+
+func main() {
+	lambda.Start(handler)
+}

@@ -28,6 +28,7 @@ resource "aws_ecr_lifecycle_policy" "lifecycle_policy" {
 
 locals {
   docker_command = var.cpu_architecture == "ARM64" ? "docker buildx build --platform linux/arm64  --provenance=false" : "docker build"
+  target_arch = var.cpu_architecture == "ARM64" ? "arm64" : "amd64"
 }
 
 resource "null_resource" "push_image" {
@@ -61,6 +62,7 @@ resource "null_resource" "push_image" {
     ${local.docker_command} \
       --no-cache \
       --push \
+      --build-arg TARGETARCH=${local.target_arch} \
       --build-arg CODEARTIFACT_TOKEN="${var.codeartifact_token}" \
       -t ${aws_ecr_repository.ecr_repository.repository_url}:${self.triggers.code_hash} \
       -t ${aws_ecr_repository.ecr_repository.repository_url}:latest \

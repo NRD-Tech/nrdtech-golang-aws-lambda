@@ -1,27 +1,32 @@
-FROM public.ecr.aws/lambda/python:3.12
+# Stage 1: Build the Go binary
+FROM golang:1.23.3 AS builder
 
-# Install Poetry
-RUN curl -sSL https://install.python-poetry.org | python3 -
+# Set default build argument for architecture
+ARG TARGETARCH=amd64
 
-# Copy pyproject.toml and poetry.lock for dependency installation
-COPY pyproject.toml poetry.lock ./
+# Set environment variables for static linking and x86_64 architecture
+ENV CGO_ENABLED=0 GOOS=linux GOARCH=$TARGETARCH
 
-# NOTE: Use this if you need to access private codeartifact shared python libraries
-# ARG CODEARTIFACT_TOKEN
-# ENV CODEARTIFACT_TOKEN=${CODEARTIFACT_TOKEN}
-# RUN ~/.local/bin/poetry config http-basic.mycompany aws ${CODEARTIFACT_TOKEN}
+WORKDIR /app
 
-# Install dependencies using Poetry (only production dependencies)
-RUN ~/.local/bin/poetry install --only main
+# Copy Go modules manifests and download dependencies
+COPY go.mod go.sum ./
+RUN go mod download
 
-# Locate Poetry's virtual environment and copy dependencies to the Lambda path
-RUN VENV_PATH=$(~/.local/bin/poetry env info --path) && \
-    cp -r ${VENV_PATH}/lib/python3.12/site-packages/* ${LAMBDA_TASK_ROOT}/
+# Copy the source code
+COPY . .
 
-# Copy function code
-COPY app/ ${LAMBDA_TASK_ROOT}/app/
+# Build a statically linked binary
+RUN go build -ldflags="-s -w" -o /main ./cmd/app/main.go
 
-ENV PYTHONPATH="${PYTHONPATH}:${LAMBDA_TASK_ROOT}:${LAMBDA_TASK_ROOT}/app"
+# Stage 2: Use the official AWS Lambda Go runtime base image
+FROM public.ecr.aws/lambda/go:1
 
-# Set the CMD to your handler
-CMD ["app.lambda_handler.lambda_handler"]
+# Install certificates (required for HTTPS if your app makes HTTP requests)
+RUN apk --no-cache add ca-certificates
+
+# Copy the statically linked binary to the Lambda task root
+COPY --from=builder /main ${LAMBDA_TASK_ROOT}
+
+# Set the binary as the container's entry point
+ENTRYPOINT ["/main"]
