@@ -22,9 +22,6 @@ RUN go build -ldflags="-s -w" -o /main ./cmd/app/main.go
 # Stage 2: Use the official AWS Lambda Go runtime base image
 FROM public.ecr.aws/lambda/go:1
 
-# Install certificates (required for HTTPS if your app makes HTTP requests)
-RUN apk --no-cache add ca-certificates
-
 # Copy the statically linked binary to the Lambda task root
 COPY --from=builder /main ${LAMBDA_TASK_ROOT}
 
