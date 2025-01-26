@@ -2,14 +2,14 @@
 This is a project template for a python application that will be triggered either by an Event Bridge schedule, an SQS queue, or an API Gateway endpoint
 
 # Technology Stack
-* Python 3.12
+* Go 1.23.3
 * Docker
 * Terraform
 
 # Setting Up Your Development Environment
 
 ## Clone and Clean the template (if using GitHub)
-* Navigate to: https://github.com/NRD-Tech/nrdtech-python-aws-lambda.git
+* Navigate to: https://github.com/NRD-Tech/nrdtech-golang-aws-lambda.git
 * Log into your GitHub account (otherwise the "Use this template" option will not show up)
 * Click "Use this template" in the top right corner
   * Create a new repository
@@ -19,7 +19,7 @@ This is a project template for a python application that will be triggered eithe
 
 ## Clone and Clean the template (if NOT using GitHub)
 ```
-git clone https://github.com/NRD-Tech/nrdtech-python-aws-lambda.git my-project
+git clone https://github.com/NRD-Tech/nrdtech-golang-aws-lambda.git my-project
 cd my-project
 rm -fR .git venv .idea
 git init
@@ -27,84 +27,6 @@ git add .
 git commit -m 'init'
 ```
 * If you want to change the license to be proprietary follow these instructions: [Go to Proprietary Licensing Section](#how-to-use-this-template-for-a-proprietary-project)
-
-## Dev Environment Pre-Requisites
-1. Make sure Python 3.12 and Poetry are installed on your computer
-```
-# Mac Terminal
-# Install brew if you haven't already
-# /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-brew install python@3.12 poetry
-```
-```
-# Windows PowerShell (run as an Administrator)
-# Install choco if you haven't already
-# https://chocolatey.org/install
-
-# Install Python 3.12
-choco install python --version=3.12 -y
-
-# Install Poetry globally
-$env:POETRY_HOME = "C:\Program Files\Poetry"
-(Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | python -
-
-# Put Poetry and Python in the PATH
-[System.Environment]::SetEnvironmentVariable("Path", $env:Path + ";C:\Program Files\Poetry\bin", [System.EnvironmentVariableTarget]::Machine)
-
-# NOTE: You will need to open a new terminal after adding Poetry and Python to your PATH for it to take effect
-```
-2. Tell poetry to create virtual environments in the project folder
-```
-poetry config virtualenvs.in-project true
-```
-
-## VSCode Setup
-1. Open the folder containing the project
-2. Run the following in the terminal to set up the virtual environment
-```
-# Assure the use of python3.12
-poetry env use python3.12
-
-# Set up the virtual environment and installs dependencies
-poetry install
-
-# Verify Python Version in Use
-poetry env info
-```
-3. Configure the Python Interpreter
-* Mac: Command-Shift-P -> Python: Select Interpreter
-* Windows: Control-Shift-P -> Python: Select Interpreter
-* Choose the Python in .venv/bin/python
-
-
-## PyCharm Setup
-1. Open the folder containing the project
-2. PyCharm should automatically detect the poetry project and offer to create the virtual environment - Click "OK"
-  * If it doesn't, go to Settings -> Project -> Project Interpreter
-  * Click Add Interpreter -> Add Local Interpreter
-  * Configure:
-    * Engironment: Generate new
-    * Type: Poetry
-    * Base python: <path to your python 3.12>
-    * Path to poetry: <path to poetry>
-  * Click OK
-  * Note: Sometimes I need to restart PyCharm after this for it to recognize the new interpereter correctly
-3. Go to PyCharm Settings -> Project -> Project Structure
-  * Mark the app folder as "Sources"
-  * Mark the tests folder as "Tests"
-  * Click "OK"
-4. Run the following in the terminal
-```
-# Set up the virtual environment and installs dependencies
-poetry install
-
-# Verify Python Version in Use
-poetry env info
-```
-
-At this point you should have a fully working local development environment.  The steps below this are setting up to be able to deploy the project to AWS.
----
 
 # Configuring the App for AWS Deployment
 
