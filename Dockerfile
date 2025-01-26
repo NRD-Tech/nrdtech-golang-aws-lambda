@@ -17,7 +17,7 @@ RUN go mod download
 COPY . .
 
 # Build a statically linked binary
-RUN go build -ldflags="-s -w" -o /main ./cmd/app/main.go
+RUN go build -ldflags="-s -w" -o /main ./cmd/lambda/main.go
 
 # Stage 2: Use the official AWS Lambda Go runtime base image
 FROM public.ecr.aws/lambda/go:1
