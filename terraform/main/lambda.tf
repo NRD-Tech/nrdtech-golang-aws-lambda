@@ -71,7 +71,7 @@ resource "aws_iam_policy" "lambda_policy" {
         "ec2:CreateNetworkInterface",
         "ec2:DescribeNetworkInterfaces",
         "ec2:DeleteNetworkInterface",
-        "cloudwatch:PutMetricData"
+        "s3:GetObject"
       ],
       "Effect": "Allow",
       "Resource": "*"
