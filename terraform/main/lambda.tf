@@ -70,8 +70,7 @@ resource "aws_iam_policy" "lambda_policy" {
       "Action": [
         "ec2:CreateNetworkInterface",
         "ec2:DescribeNetworkInterfaces",
-        "ec2:DeleteNetworkInterface",
-        "s3:GetObject"
+        "ec2:DeleteNetworkInterface"
       ],
       "Effect": "Allow",
       "Resource": "*"
