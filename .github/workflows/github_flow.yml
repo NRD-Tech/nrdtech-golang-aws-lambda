@@ -20,10 +20,24 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.23.3'
+          go-version: '1.24.3'
+
+      - name: Cache Go modules
+        uses: actions/cache@v3
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Download dependencies
+        run: go mod download
 
       - name: Run tests
         run: go test -v ./...
+
+      - name: Build application
+        run: go build -v ./cmd/lambda
 
   deploy-staging:
     needs: test
@@ -36,11 +50,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Load configuration
+        id: config
+        run: |
+          source config.global
+          echo "aws-role-arn=$AWS_ROLE_ARN" >> $GITHUB_OUTPUT
+          echo "aws-region=$AWS_DEFAULT_REGION" >> $GITHUB_OUTPUT
+
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v3
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::559050251856:role/pipelines-cd-owdyua
-          aws-region: us-west-2
+          role-to-assume: ${{ steps.config.outputs.aws-role-arn }}
+          aws-region: ${{ steps.config.outputs.aws-region }}
 
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v2
@@ -68,11 +89,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Load configuration
+        id: config
+        run: |
+          source config.global
+          echo "aws-role-arn=$AWS_ROLE_ARN" >> $GITHUB_OUTPUT
+          echo "aws-region=$AWS_DEFAULT_REGION" >> $GITHUB_OUTPUT
+
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v3
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::559050251856:role/pipelines-cd-owdyua
-          aws-region: us-west-2
+          role-to-assume: ${{ steps.config.outputs.aws-role-arn }}
+          aws-region: ${{ steps.config.outputs.aws-region }}
 
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v2
@@ -87,4 +115,4 @@ jobs:
         #   TF_VAR_SECRET_DATA: ${{ secrets.SECRET_DATA_PROD }}
         run: |
           chmod +x ./*.sh
-          ENVIRONMENT=prod ./deploy.sh 
+          ENVIRONMENT=prod ./deploy.sh

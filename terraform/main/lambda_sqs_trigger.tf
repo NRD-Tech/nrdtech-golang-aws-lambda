@@ -7,10 +7,10 @@
 #   # Give this an name that reflects what kind of jobs it is queueing
 #   # Note: be sure to leave the environment variable in the name so you
 #   #       have different queues for staging and production
-#   name = var.app_ident
+#   name = var.APP_IDENT
 
 #   # Set this to the max length of time a lambda function could possibly run
-#   visibility_timeout_seconds = var.app_timeout
+#   visibility_timeout_seconds = var.APP_TIMEOUT
 
 #   redrive_policy = jsonencode({
 #     deadLetterTargetArn = aws_sqs_queue.dlq.arn
@@ -22,7 +22,7 @@
 
 # # Dead Letter Queue (DLQ)
 # resource "aws_sqs_queue" "dlq" {
-#   name = "${var.app_ident}-dlq"
+#   name = "${var.APP_IDENT}-dlq"
 # }
 
 # resource "aws_lambda_event_source_mapping" "lambda_sqs_trigger" {
@@ -35,7 +35,7 @@
 # }
 
 # resource "aws_iam_policy" "sqs_permissions_policy" {
-#   name        = "${var.app_ident}_sqs_permissions"
+#   name        = "${var.APP_IDENT}_sqs_permissions"
 #   policy      = jsonencode({
 #     Version = "2012-10-17",
 #     Statement = [

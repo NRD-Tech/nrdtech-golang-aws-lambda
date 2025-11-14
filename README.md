@@ -2,7 +2,7 @@
 This is a project template for a golang application that will be triggered either by an Event Bridge schedule, an SQS queue, or an API Gateway endpoint
 
 # Technology Stack
-* Go 1.23.3
+* Go 1.24.3
 * Docker
 * Terraform
 
@@ -39,7 +39,7 @@ git commit -m 'init'
     * An AWS S3 bucket for the Terraform state files
 
 ## Configure Settings
-* Edit .env.global
+* Edit config.global
   * Each config is a little different per application but at a minimum you will need to change:
     * APP_IDENT_WITHOUT_ENV
     * TERRAFORM_STATE_BUCKET
@@ -58,7 +58,7 @@ git commit -m 'init'
   * API Gateway:
     * Un-comment terraform/main/lambda_api_gateway.tf
     * Rename cmd/lambda/main_api_gateway.go.tmp to cmd/lambda/main.go
-    * Configure the domain's in .env.prod and .env.staging
+    * Configure the domain's in config.prod and config.staging
 * Commit your changes to git
 ```
 git add .
@@ -75,7 +75,7 @@ git commit -a -m 'updated config'
 ## (If using GitHub) Configure the AWS Role
 * Edit .github/workflows/main.yml
   * Set the pipeline role for role-to-assume
-    * This should be the same as the AWS_ROLE_ARN in your .env.global
+    * This should be the same as the AWS_ROLE_ARN in your conig.global
   * Set the correct aws-region
 
 ## Deploy to Staging
