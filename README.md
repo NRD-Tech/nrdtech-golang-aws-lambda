@@ -1,143 +1,146 @@
 # Golang AWS Lambda App
-This is a project template for a golang application that will be triggered either by an Event Bridge schedule, an SQS queue, or an API Gateway endpoint
 
-# Technology Stack
-* Go 1.24.3
-* Docker
-* Terraform
+Template for a Go Lambda triggered by **EventBridge schedule**, **SQS**, or **API Gateway**. One trigger is active at a time via `trigger_type` in config; no Terraform files are commented out.
 
-# Setting Up Your Development Environment
+## Quick Start
 
-## Clone and Clean the template (if using GitHub)
-* Navigate to: https://github.com/NRD-Tech/nrdtech-golang-aws-lambda.git
-* Log into your GitHub account (otherwise the "Use this template" option will not show up)
-* Click "Use this template" in the top right corner
-  * Create a new repository
-* Fill in your repository name, description, and public/private setting
-* Clone your newly created repository
-* If you want to change the license to be proprietary follow these instructions: [Go to Proprietary Licensing Section](#how-to-use-this-template-for-a-proprietary-project)
+- **Run tests:** `go test -v ./...`
+- **Build:** `go build -v ./cmd/lambda`
+- **Deploy staging:** push to `main` (GitHub Actions runs test then deploy).
+- **Deploy production:** tag with `v*` (e.g. `v1.0.0`) and push the tag.
+- **Destroy:** push tag `destroy-staging-*` or `destroy-prod-*` to tear down that environment.
 
-## Clone and Clean the template (if NOT using GitHub)
-```
-git clone https://github.com/NRD-Tech/nrdtech-golang-aws-lambda.git my-project
-cd my-project
-rm -fR .git venv .idea
-git init
-git add .
-git commit -m 'init'
-```
-* If you want to change the license to be proprietary follow these instructions: [Go to Proprietary Licensing Section](#how-to-use-this-template-for-a-proprietary-project)
+## Technology Stack
+
+- Go 1.24.3
+- Docker
+- Terraform
+
+---
 
 # Configuring the App for AWS Deployment
 
 ## OIDC Pre-Requisite
-* You must have previously set up the AWS Role for OIDC and S3 bucket for the Terraform state files
-* The easiest way to do this is to use the NRD-Tech Terraform Bootstrap template
-  * https://github.com/NRD-Tech/nrdtech-terraform-aws-account-bootstrap
-  * After following the README.md instructions in the bootstrap template project you should have:
-    * An AWS Role ARN
-    * An AWS S3 bucket for the Terraform state files
+
+- An AWS role for OIDC and an S3 bucket for Terraform state must exist (e.g. via [nrdtech-terraform-aws-account-bootstrap](https://github.com/NRD-Tech/nrdtech-terraform-aws-account-bootstrap)).
+- You need: **AWS Role ARN** and **Terraform state bucket name**.
 
 ## Configure Settings
-* Edit config.global
-  * Each config is a little different per application but at a minimum you will need to change:
-    * APP_IDENT_WITHOUT_ENV
-    * TERRAFORM_STATE_BUCKET
-    * AWS_DEFAULT_REGION
-    * AWS_ROLE_ARN
-* Edit go.mod
-  * Set an appropriate module name (likely the same as APP_IDENT_WITHOUT_ENV)
-* Choose how your lambda function will be triggered and un-comment the appropriate terraform:
-  * Event Bridge Scheduling:
-    * Un-comment terraform/main/lambda_eventbridge_schedule.tf
-    * Set the schedule that you want as a cron or rate in terraform/main/lambda_eventbridge_schedule.tf
-    * Rename cmd/lambda/main_event_bridge.go.tmp to cmd/lambda/main.go
-  * SQS Triggered:
-    * Un-comment terraform/main/lambda_sqs_trigger.tf
-    * Rename cmd/lambda/main_sqs_trigger.go.tmp to cmd/lambda/main.go
-  * API Gateway:
-    * Un-comment terraform/main/lambda_api_gateway.tf
-    * Rename cmd/lambda/main_api_gateway.go.tmp to cmd/lambda/main.go
-    * Configure the domain's in config.prod and config.staging
-* Commit your changes to git
-```
+
+1. **Edit `config.global`** — set at least:
+   - `APP_IDENT_WITHOUT_ENV`
+   - `TERRAFORM_STATE_BUCKET`
+   - `AWS_DEFAULT_REGION`
+   - `AWS_ROLE_ARN`
+
+2. **Set `trigger_type`** in `config.global` (or override in `config.staging` / `config.prod`):
+   - `trigger_type=sqs` — SQS queue (default)
+   - `trigger_type=api_gateway` — API Gateway HTTP API
+   - `trigger_type=eventbridge` — EventBridge Scheduler (cron/rate)
+
+   All three Terraform trigger files stay in the repo; only the one matching `trigger_type` is applied. To switch triggers, change this value and re-deploy (no uncommenting or manual state fixes).
+
+3. **Ensure `cmd/lambda/main.go` matches your trigger** — use the corresponding template as your entrypoint:
+   - **SQS:** `main_sqs_trigger.go.tmpl` → build as `main.go`
+   - **API Gateway:** `main_api_gateway.go.tmpl` → build as `main.go`
+   - **EventBridge:** `main_event_bridge.go.tmpl` → build as `main.go`
+
+4. **If using API Gateway:** set `API_DOMAIN` and `API_ROOT_DOMAIN` in `config.staging` and `config.prod` (optional; only needed for custom domain). `API_ROOT_DOMAIN` must exist in Route53.
+
+5. **If using EventBridge:** adjust `schedule_expression` in `terraform/main/lambda_eventbridge_schedule.tf` if needed (cron or rate).
+
+6. **Edit `go.mod`** — set the module name (e.g. same as `APP_IDENT_WITHOUT_ENV`).
+
+## GitHub Actions (GitHub Flow)
+
+- Workflow: `.github/workflows/github_flow.yml`
+- Ensure `role-to-assume` and `aws-region` in the workflow match `AWS_ROLE_ARN` and `AWS_DEFAULT_REGION` in `config.global` (or use the same config source).
+- **Staging:** push to `main` → test job runs, then deploy to staging.
+- **Production:** create a version tag (e.g. `git tag v1.0.0`) and push it (`git push origin v1.0.0`) → test then deploy to prod.
+- **Destroy staging:** push a tag matching `destroy-staging-*` (e.g. `destroy-staging-20250227`).
+- **Destroy production:** push a tag matching `destroy-prod-*` (e.g. `destroy-prod-20250227`).
+
+## Bitbucket
+
+- To use Bitbucket Pipelines instead, enable Pipelines in repository settings. The project includes `bitbucket-pipelines.yml` for that flow.
+
+---
+
+# Setting Up Your Development Environment
+
+## Clone and clean the template (GitHub)
+
+- Use “Use this template” on [NRD-Tech/nrdtech-golang-aws-lambda](https://github.com/NRD-Tech/nrdtech-golang-aws-lambda) to create a new repository, then clone it.
+- For proprietary use: [Proprietary licensing](#how-to-use-this-template-for-a-proprietary-project).
+
+## Clone and clean the template (without GitHub)
+
+```bash
+git clone https://github.com/NRD-Tech/nrdtech-golang-aws-lambda.git my-project
+cd my-project
+rm -fR .git .idea
+git init
 git add .
-git commit -a -m 'updated config'
+git commit -m 'init'
 ```
 
-## (If using Bitbucket) Enable Bitbucket Pipeline (NOTE: GitHub does not require any setup like this for the Actions to work)
-* Push your git project up into a new Bitbucket project
-* Navigate to your project on Bitbucket
-  * Click Repository Settings
-  * Click Pipelines->Settings
-    * Click Enable Pipelines
+---
 
-## (If using GitHub) Configure the AWS Role
-* Edit .github/workflows/main.yml
-  * Set the pipeline role for role-to-assume
-    * This should be the same as the AWS_ROLE_ARN in your conig.global
-  * Set the correct aws-region
+# Deploy and destroy
 
-## Deploy to Staging
-```
-git checkout -b staging
-git push --set-upstream origin staging
+## Deploy to staging
+
+```bash
+git checkout main
+git add .
+git commit -m 'your message'
+git push origin main
 ```
 
-## Deploy to Production
-```
-git checkout -b production
-git push --set-upstream origin production
+## Deploy to production
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
 ```
 
-## Un-Deploying in Bitbucket
-1. Navigate to the Bitbucket project website
-2. Click Pipelines in the left nav menu
-3. Click Run pipeline button
-4. Choose the branch you want to un-deploy
-5. Choose the appropriate un-deploy Pipeline
-   * un-deploy-staging
-   * un-deploy-production
-6. Click Run
+## Destroy (GitHub Actions)
+
+- **Staging:** `git tag destroy-staging-$(date +%Y%m%d)` then `git push origin destroy-staging-$(date +%Y%m%d)`
+- **Production:** `git tag destroy-prod-$(date +%Y%m%d)` then `git push origin destroy-prod-$(date +%Y%m%d)`
+
+---
 
 # Misc How-To's
 
 ## How to use this template for a proprietary project
-This project's license (MIT License) allows for you to create proprietary code based on this template.
 
-Here are the steps to correctly do this:
-1. Replace the LICENSE file with your proprietary license terms if you wish to use your own license.
-2. Optionally, include a NOTICE file stating that the original work is licensed under the MIT License and specify the parts of the project that are governed by your proprietary license.
+This project's license (MIT License) allows you to create proprietary code based on this template. Replace the LICENSE file with your terms and optionally add a NOTICE file stating that the original work is licensed under the MIT License.
 
-## How To run docker image locally
-```
-aws ecr get-login-password \
-      --region us-west-2 | \
-      docker login \
-        --username AWS \
-        --password-stdin 1234567890.dkr.ecr.us-west-2.amazonaws.com/myapp_lambda_repository
+## Run the Lambda Docker image locally
 
-docker run --rm -p 9000:8080 -it 482370276428.dkr.ecr.us-west-2.amazonaws.com/myapp_lambda_repository:latest 
+```bash
+aws ecr get-login-password --region us-west-2 | \
+  docker login --username AWS --password-stdin <account>.dkr.ecr.<region>.amazonaws.com
+
+docker run --rm -p 9000:8080 -it <account>.dkr.ecr.<region>.amazonaws.com/<repository>:latest
 
 curl -XPOST "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{}'
-
 ```
 
-# How To Inspect docker image
-```
-alias dive="docker run -ti --rm  -v /var/run/docker.sock:/var/run/docker.sock wagoodman/dive"
-dive 1234567890.dkr.ecr.us-west-2.amazonaws.com/myapp_lambda_repository:latest
+## Inspect the Docker image (dive)
+
+```bash
+alias dive="docker run -ti --rm -v /var/run/docker.sock:/var/run/docker.sock wagoodman/dive"
+dive <account>.dkr.ecr.<region>.amazonaws.com/<repository>:latest
 ```
 
-# How to view the architecture (and other info) of a docker image
-```
-export AWS_PROFILE=mycompanyprofile
-docker logout 1234567890.dkr.ecr.us-west-2.amazonaws.com
-aws ecr get-login-password \
-      --region us-west-2 | \
-      docker login \
-        --username AWS \
-        --password-stdin 1234567890.dkr.ecr.us-west-2.amazonaws.com/myapp_lambda_repository
-docker pull 1234567890.dkr.ecr.us-west-2.amazonaws.com/myapp_lambda_repository
-docker inspect 1234567890.dkr.ecr.us-west-2.amazonaws.com/myapp_lambda_repository
+## View image architecture
+
+```bash
+export AWS_PROFILE=yourprofile
+aws ecr get-login-password --region us-west-2 | \
+  docker login --username AWS --password-stdin <account>.dkr.ecr.<region>.amazonaws.com
+docker pull <account>.dkr.ecr.<region>.amazonaws.com/<repository>:latest
+docker inspect <account>.dkr.ecr.<region>.amazonaws.com/<repository>:latest
 ```
