@@ -115,7 +115,7 @@ def test_non_interactive_full_run_writes_configs(tmp_path, monkeypatch):
     cmd_dir.mkdir(parents=True)
     for tmpl_name in setup_project.TEMPLATE_FILE_BY_TYPE.values():
         (cmd_dir / tmpl_name).write_text("package main\nfunc main() {}\n")
-    (tmp_path / "go.mod").write_text("module old-name\ngo 1.24.3\n")
+    (tmp_path / "go.mod").write_text("module old-name\ngo 1.26\n")
 
     monkeypatch.setattr(setup_project, "SCRIPT_DIR", str(tmp_path))
     monkeypatch.setattr(setup_project, "CONFIG_GLOBAL", str(tmp_path / "config.global"))
@@ -167,7 +167,7 @@ def test_non_interactive_sqs_triggered_type(tmp_path, monkeypatch):
     cmd_dir.mkdir(parents=True)
     for tmpl_name in setup_project.TEMPLATE_FILE_BY_TYPE.values():
         (cmd_dir / tmpl_name).write_text("package main\nfunc main() {}\n")
-    (tmp_path / "go.mod").write_text("module old-name\ngo 1.24.3\n")
+    (tmp_path / "go.mod").write_text("module old-name\ngo 1.26\n")
 
     monkeypatch.setattr(setup_project, "SCRIPT_DIR", str(tmp_path))
     monkeypatch.setattr(setup_project, "CONFIG_GLOBAL", str(tmp_path / "config.global"))
