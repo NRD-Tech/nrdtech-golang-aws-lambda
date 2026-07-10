@@ -1,4 +1,8 @@
 # NOTE: Do not call this directly - it is called from ./deploy.sh
+# Local convenience: plan + apply -auto-approve (no saved-plan gate).
+# CI should use _run_terraform_plan.sh then _run_terraform_apply_plan.sh.
+
+set -euo pipefail
 
 #########################################################
 # Generate the backend.tf file for main
@@ -21,12 +25,10 @@ EOF
 # Run Terraform
 #########################################################
 
-# Initialize terraform
 terraform init
 
 apply_log=$(mktemp)
 trap 'rm -f "$apply_log"' EXIT
-
 echo "Creating resources..."
 terraform apply -auto-approve 2>&1 | tee "$apply_log"
 apply_code=${PIPESTATUS[0]}
