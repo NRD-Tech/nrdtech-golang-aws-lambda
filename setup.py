@@ -430,6 +430,24 @@ def apply_handler_template(app_type):
         return
     shutil.copy2(src, MAIN_GO_PATH)
     print("Created cmd/lambda/main.go from {}".format(tmpl_name))
+    _sync_go_module()
+
+
+def _sync_go_module():
+    """Resolve imports in go.mod/go.sum after handler template changes."""
+    try:
+        subprocess.run(
+            ["go", "mod", "tidy"],
+            cwd=SCRIPT_DIR,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        print("Updated go.mod and go.sum")
+    except FileNotFoundError:
+        print("Warning: go not found; run 'go mod tidy' manually.", file=sys.stderr)
+    except subprocess.CalledProcessError as e:
+        print("Warning: go mod tidy failed: {}".format(e.stderr or e), file=sys.stderr)
 
 
 # ---------------------------------------------------------------------------

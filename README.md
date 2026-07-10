@@ -12,7 +12,7 @@ Template for a Go Lambda triggered by **EventBridge schedule**, **SQS**, or **AP
 
 ## Technology Stack
 
-- Go 1.26
+- Go 1.26.5
 - Docker
 - Terraform
 
