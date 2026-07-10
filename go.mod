@@ -1,4 +1,4 @@
-module my-test-project
+module tmpl-go-lam
 
 go 1.26
 

@@ -14,7 +14,8 @@ Template for a Go Lambda triggered by **EventBridge schedule**, **SQS**, or **AP
 
 - Go 1.26.5
 - Docker
-- Terraform
+- Terraform (single main stack; state in S3)
+- Tags + AWS Resource Groups for cost/resource grouping
 
 ---
 
