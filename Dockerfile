@@ -19,10 +19,10 @@ COPY . .
 # Build a statically linked binary
 RUN go build -ldflags="-s -w" -o main ./cmd/lambda/main.go
 
-# Stage 2: Use the official AWS Lambda Go runtime base image
+# Stage 2: Use the official AWS Lambda Go runtime base image (non-root by default)
 FROM public.ecr.aws/lambda/provided:al2023
 
-# Copy and rename the binary to bootstrap
 COPY --from=builder /app/main ./main
 
+# Lambda provided.al2023 runs the handler as a non-root runtime user.
 ENTRYPOINT [ "./main" ]

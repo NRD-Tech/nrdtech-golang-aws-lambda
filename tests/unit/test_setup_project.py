@@ -15,6 +15,8 @@ setup_project = importlib.util.module_from_spec(_SPEC)
 sys.modules["setup_project"] = setup_project
 _SPEC.loader.exec_module(setup_project)
 
+import setup_lib.constants as _setup_constants
+
 
 # ---------------------------------------------------------------------------
 # _parse_export_file
@@ -176,13 +178,13 @@ def test_non_interactive_full_run_writes_configs(tmp_path, monkeypatch):
         (cmd_dir / tmpl_name).write_text("package main\nfunc main() {}\n")
     (tmp_path / "go.mod").write_text("module old-name\ngo 1.26\n")
 
-    monkeypatch.setattr(setup_project, "SCRIPT_DIR", str(tmp_path))
-    monkeypatch.setattr(setup_project, "CONFIG_GLOBAL", str(tmp_path / "config.global"))
-    monkeypatch.setattr(setup_project, "CONFIG_STAGING", str(tmp_path / "config.staging"))
-    monkeypatch.setattr(setup_project, "CONFIG_PROD", str(tmp_path / "config.prod"))
-    monkeypatch.setattr(setup_project, "LAMBDA_CMD_DIR", str(cmd_dir))
-    monkeypatch.setattr(setup_project, "MAIN_GO_PATH", str(cmd_dir / "main.go"))
-    monkeypatch.setattr(setup_project, "GO_MOD_PATH", str(tmp_path / "go.mod"))
+    monkeypatch.setattr(_setup_constants, "SCRIPT_DIR", str(tmp_path))
+    monkeypatch.setattr(_setup_constants, "CONFIG_GLOBAL", str(tmp_path / "config.global"))
+    monkeypatch.setattr(_setup_constants, "CONFIG_STAGING", str(tmp_path / "config.staging"))
+    monkeypatch.setattr(_setup_constants, "CONFIG_PROD", str(tmp_path / "config.prod"))
+    monkeypatch.setattr(_setup_constants, "LAMBDA_CMD_DIR", str(cmd_dir))
+    monkeypatch.setattr(_setup_constants, "MAIN_GO_PATH", str(cmd_dir / "main.go"))
+    monkeypatch.setattr(_setup_constants, "GO_MOD_PATH", str(tmp_path / "go.mod"))
 
     orig = sys.argv
     try:
@@ -231,13 +233,13 @@ def test_non_interactive_shared_project_name(tmp_path, monkeypatch):
         (cmd_dir / tmpl_name).write_text("package main\nfunc main() {}\n")
     (tmp_path / "go.mod").write_text("module old-name\ngo 1.26\n")
 
-    monkeypatch.setattr(setup_project, "SCRIPT_DIR", str(tmp_path))
-    monkeypatch.setattr(setup_project, "CONFIG_GLOBAL", str(tmp_path / "config.global"))
-    monkeypatch.setattr(setup_project, "CONFIG_STAGING", str(tmp_path / "config.staging"))
-    monkeypatch.setattr(setup_project, "CONFIG_PROD", str(tmp_path / "config.prod"))
-    monkeypatch.setattr(setup_project, "LAMBDA_CMD_DIR", str(cmd_dir))
-    monkeypatch.setattr(setup_project, "MAIN_GO_PATH", str(cmd_dir / "main.go"))
-    monkeypatch.setattr(setup_project, "GO_MOD_PATH", str(tmp_path / "go.mod"))
+    monkeypatch.setattr(_setup_constants, "SCRIPT_DIR", str(tmp_path))
+    monkeypatch.setattr(_setup_constants, "CONFIG_GLOBAL", str(tmp_path / "config.global"))
+    monkeypatch.setattr(_setup_constants, "CONFIG_STAGING", str(tmp_path / "config.staging"))
+    monkeypatch.setattr(_setup_constants, "CONFIG_PROD", str(tmp_path / "config.prod"))
+    monkeypatch.setattr(_setup_constants, "LAMBDA_CMD_DIR", str(cmd_dir))
+    monkeypatch.setattr(_setup_constants, "MAIN_GO_PATH", str(cmd_dir / "main.go"))
+    monkeypatch.setattr(_setup_constants, "GO_MOD_PATH", str(tmp_path / "go.mod"))
 
     orig = sys.argv
     try:
@@ -271,13 +273,13 @@ def test_non_interactive_sqs_triggered_type(tmp_path, monkeypatch):
         (cmd_dir / tmpl_name).write_text("package main\nfunc main() {}\n")
     (tmp_path / "go.mod").write_text("module old-name\ngo 1.26\n")
 
-    monkeypatch.setattr(setup_project, "SCRIPT_DIR", str(tmp_path))
-    monkeypatch.setattr(setup_project, "CONFIG_GLOBAL", str(tmp_path / "config.global"))
-    monkeypatch.setattr(setup_project, "CONFIG_STAGING", str(tmp_path / "config.staging"))
-    monkeypatch.setattr(setup_project, "CONFIG_PROD", str(tmp_path / "config.prod"))
-    monkeypatch.setattr(setup_project, "LAMBDA_CMD_DIR", str(cmd_dir))
-    monkeypatch.setattr(setup_project, "MAIN_GO_PATH", str(cmd_dir / "main.go"))
-    monkeypatch.setattr(setup_project, "GO_MOD_PATH", str(tmp_path / "go.mod"))
+    monkeypatch.setattr(_setup_constants, "SCRIPT_DIR", str(tmp_path))
+    monkeypatch.setattr(_setup_constants, "CONFIG_GLOBAL", str(tmp_path / "config.global"))
+    monkeypatch.setattr(_setup_constants, "CONFIG_STAGING", str(tmp_path / "config.staging"))
+    monkeypatch.setattr(_setup_constants, "CONFIG_PROD", str(tmp_path / "config.prod"))
+    monkeypatch.setattr(_setup_constants, "LAMBDA_CMD_DIR", str(cmd_dir))
+    monkeypatch.setattr(_setup_constants, "MAIN_GO_PATH", str(cmd_dir / "main.go"))
+    monkeypatch.setattr(_setup_constants, "GO_MOD_PATH", str(tmp_path / "go.mod"))
 
     orig = sys.argv
     try:
