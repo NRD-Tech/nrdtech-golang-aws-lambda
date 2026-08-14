@@ -1,13 +1,29 @@
-# For Lambda deployed in a VPC
+# For Lambda deployed in a VPC.
+#
+# The function takes no inbound traffic, so this group has no ingress rules. Egress is
+# scoped rather than allow-all: TCP 443 covers the AWS endpoints a function actually needs
+# (Secrets Manager, SSM, S3, CloudWatch Logs) plus HTTPS APIs, and the VPC CIDR covers
+# in-VPC dependencies like RDS. Widen it deliberately - add a rule for the specific port
+# and destination - rather than reopening it to every port on every host.
+#
 # resource "aws_security_group" "lambda_sg" {
 #   name   = "${var.app_ident}_lambda_sg"
 #   vpc_id = data.aws_vpc.selected.id
 
 #   egress {
+#     description = "HTTPS to AWS service endpoints and external APIs"
+#     from_port   = 443
+#     to_port     = 443
+#     protocol    = "tcp"
+#     cidr_blocks = ["0.0.0.0/0"]
+#   }
+
+#   egress {
+#     description = "All protocols to in-VPC dependencies"
 #     from_port   = 0
 #     to_port     = 0
 #     protocol    = "-1"
-#     cidr_blocks = ["0.0.0.0/0"]
+#     cidr_blocks = [data.aws_vpc.selected.cidr_block]
 #   }
 # }
 
